@@ -1,9 +1,14 @@
-import React,{useState,useEffect} from 'react'
+import React,{useState,useEffect,useRef} from 'react'
 import axios from 'axios'
+import Header from './Header'
+import { ToastContainer, toast } from 'react-toastify';
+
 
 
 export default function Home() {
     const [planets,setPlantes]=useState([])
+    const [isFavourite,setIsFavourite]=useState(false)
+    let btnRef = useRef();
 
     useEffect(()=>{
         getPlanets()
@@ -17,29 +22,40 @@ export default function Home() {
     })
     }
 
-    const favHandler=(id)=>{
-    let favlist = []
-        favlist = JSON.parse(localStorage.getItem('favs')) || []
-        favlist.push(id)
-        localStorage.setItem('favs', JSON.stringify(favlist));
+    const favHandler=(item)=>{
+           let favlist = []
+            favlist = JSON.parse(localStorage.getItem('favs')) || []
+            favlist.push(item)
+            localStorage.setItem('favs', JSON.stringify(favlist));
+            toast.success('Added to Favourite')
     }
 
     const showPlants=(el)=>{
         if(el===[]){
-            return <h3>loading...</h3>
+            return (
+                <div class="spinner-border text-danger" role="status">
+                    <span class="visually-hidden"></span>
+                </div>
+            )
         }else{
             if(el[0]===undefined){
-                return<h3>loading...</h3>
+                return(
+                    <div class="spinner-border text-danger" role="status">
+                <span class="visually-hidden"></span>
+                </div>
+                )
             }else{
-                return el[0].map((item,index)=>{
-                    return(
-                        <div key={index}>
-                        <h4>{item.name}</h4>
-                        <button onClick={()=>favHandler(item.id)}>mark as fav</button>
-                        </div>
-                    )
+                    return el[0].map((item,index)=>{
+                        const {id,name}=item
+                        return(
+                            <div key={index} className="planet_info">
+                            <h4 className="planet_text">{name}</h4>
+                            <button className="planet_btn" onClick={()=>favHandler(id)}>mark as fav</button>
+                            </div>
+                        )
+                    
+                    })
                 
-                })
             }
             
         }
@@ -48,7 +64,16 @@ export default function Home() {
 
     return (
         <div>
-            {showPlants(planets)}
+            <Header/>
+            <div className="main">
+            <section className="hero">
+            <ToastContainer/>
+                <div className="main_area">
+                    <div className="planet_heading">all planets</div>
+                    {showPlants(planets)}
+                </div>
+            </section>
+            </div>
         </div>
     )
 }
